@@ -16,7 +16,6 @@ instance Show Direction where
   show Z  = "+z"
   show Z_ = "-z"
 
-
 -- snake is an array of 64 Ints
 -- 0 if it is threaded straight threoug
 -- 1 if it has a right-angled thread running through it
@@ -32,9 +31,13 @@ snake =  [0,0,1,1,0,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,
 startingSolution :: [(Int,Int,Int)]
 startingSolution = [(0,0,0)]
 
--- we start by heading in a given direction
+-- and we start by heading in a given direction
 startingDirection :: Direction
 startingDirection = X
+
+-- this gives a different solution:
+-- startingSolution = [(1,0,0)]
+-- startingDirection = Y
 
 -- validPartialSolutions is the (possibly empty) set of
 -- partial solutions which are valid ways of placing the
@@ -75,7 +78,6 @@ changeDir Z_ (x,y,z) = [(x+1,y,z),(x-1,y,z),(x,y+1,z),(x,y-1,z)]
 -- examine the positions of the first two elements in a partial solution
 -- determine the current direction in which the snake is heading
 direction :: [(Int, Int, Int)] -> Direction
-direction [] = error "empty list in direction"
 direction [_] = startingDirection                -- starting solution
 direction ps
     | (getX ultimate) > (getX penultimate) = X
@@ -109,12 +111,12 @@ inBounds xs (x,y,z) = (x `elem` [0..3]) &&
 
 solve :: [(Int,Int,Int)] -> [(Int,Int,Int)]
 solve xs
-    | (length xs) == (length snake) = xs
-    | psols == []                   = []
-    | length psols == 1             = solve (head psols)
-    | sols == []                    = []
+    | (length xs) == (length snake) = xs                    -- solved it, return the solution
+    | psols == []                   = []                    -- dead end, unwind
+    | length psols == 1             = solve (head psols)    -- only one way forward, take it
     | validSols == []               = []
     | otherwise                     = head $ validSols
+
   where
     psols = validPartialSolutions xs
     sols = map solve psols
