@@ -109,22 +109,19 @@ inBounds xs (x,y,z) = (x `elem` [0..3]) &&
                    (z `elem` [0..3]) &&
                    (x,y,z) `notElem` xs
 
-solve :: [(Int,Int,Int)] -> [(Int,Int,Int)]
+-- solve the puzzle
+-- return a list of all solutions
+solve :: [(Int,Int,Int)] -> [[(Int,Int,Int)]]
 solve xs
-    | (length xs) == (length snake) = xs                    -- solved it, return the solution
-    | psols == []                   = []                    -- dead end, unwind
-    | length psols == 1             = solve (head psols)    -- only one way forward, take it
-    | validSols == []               = []
-    | otherwise                     = head $ validSols
-
+    | (length xs) == (length snake) = [xs]                  -- we have a solution, return it
+    | otherwise                     = concatMap solve psols
   where
-    psols = validPartialSolutions xs
-    sols = map solve psols
-    validSols = filter (not . null) sols
+    psols = validPartialSolutions xs                        -- these are the possible valid next steps
 
+-- helper for printing the solution
 direction' :: (Int, Int, Int) -> (Int,Int,Int) -> Direction
 direction' a b = direction [b,a]
 
 printResult r = print $ zipWith direction' r (tail r)
 
-main = printResult $ reverse $ solve startingSolution
+main = mapM_ (printResult . reverse) $ solve startingSolution
